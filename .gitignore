@@ -1,0 +1,5 @@
+# dependensi
+node_modules/
+
+# kredensial
+.env
