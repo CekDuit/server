@@ -3,6 +3,7 @@ WIP
 
 ## API endpoints
 1. `POST /api/auth/signup`: Sign up user baru
+
 Body:
 ```js
 {
@@ -13,6 +14,7 @@ Body:
 }
 ```
 2. `POST /api/auth/signin`: Log in user yang sudah ter sign up
+
 Body:
 ```js
 {
