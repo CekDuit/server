@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "start:dev": "nodemon",
+    "start:dev": "nodemon src/index.js",
     "db:up": "node src/database/scripts/dbUp.js",
     "tables:up": "node src/database/scripts/tablesUp.js",
     "db:init": "npm run db:up && npm run tables:up"
