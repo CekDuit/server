@@ -13,17 +13,43 @@ CREATE TABLE IF NOT EXISTS users (
 )
 `;
 
+const createTableWallet = `
+CREATE TABLE wallets (
+    user_id INT PRIMARY KEY,
+    balance DECIMAL(15,2) DEFAULT 0.00 NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)
+`;
+
 const createNewUser = `
 INSERT INTO users VALUES(null, ?, ?, ?, ?, NOW())
+`;
+
+const createUserWallet = `
+INSERT INTO wallets (user_id, balance) VALUES (?, ?)
 `;
 
 const findUserByEmail = `
 SELECT * FROM users WHERE email = ?
 `;
 
+const userProfileById = `
+SELECT id, firstname, lastname, email, created_on FROM users WHERE id = ?
+`;
+
+const addUserBalance = `
+UPDATE wallets SET balance = balance + ? WHERE user_id = ?
+`;
+
 module.exports = {
     createDB,
     createTableUSers,
     createNewUser,
-    findUserByEmail
+    findUserByEmail,
+    userProfileById,
+    createTableWallet,
+    createUserWallet,
+    addUserBalance
 };
