@@ -1,8 +1,13 @@
 const { logger } = require('../../utils/logger');
-const { createTableUSers: createTableUSersQuery } = require('../queries');
+const { createTableUSers: createTableUSersQuery, createTableWallet: createTableWalletQuery } = require('../queries');
+
+const createTable = `
+    ${createTableWalletQuery};
+    ${createTableUSersQuery};
+`
 
 (() => {    
-   require('../../config/db.config').query(createTableUSersQuery, (err, _) => {
+   require('../../config/db.config').query(createTable, (err, _) => {
         if (err) {
             logger.error(err.message);
             return;
