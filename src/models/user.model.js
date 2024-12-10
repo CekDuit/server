@@ -1,5 +1,5 @@
 const db = require('../config/db.config');
-const { createNewUser: createNewUserQuery, findUserByEmail: findUserByEmailQuery } = require('../database/queries');
+const { createNewUser: createNewUserQuery, createUserWallet: createUserWalletQuery, findUserByEmail: findUserByEmailQuery, userProfileById: userProfileByIdQuery } = require('../database/queries');
 const { logger } = require('../utils/logger');
 
 class User {
@@ -23,12 +23,34 @@ class User {
                     cb(err, null);
                     return;
                 }
-                cb(null, {
-                    id: res.insertId,
-                    firstname: newUser.firstname,
-                    lastname: newUser.lastname,
-                    email: newUser.email
-                });
+                const userId = res.insertId;
+                db.query(
+                    createUserWalletQuery, 
+                    [userId, 0], // Saldo awal dompet diatur ke 0
+                    (err) => {
+                        if (err) {
+                            logger.error(`Wallet creation failed for user ID: ${userId} - ${err.message}`);
+                            // Jika terjadi error, tetap kembalikan data user tanpa dompet
+                            cb(null, {
+                                id: userId,
+                                firstname: newUser.firstname,
+                                lastname: newUser.lastname,
+                                email: newUser.email,
+                                walletCreated: false, // Informasi tambahan bahwa wallet gagal dibuat
+                            });
+                            return;
+                        }
+    
+                        // Semua berhasil, kembalikan data pengguna dengan status wallet
+                        cb(null, {
+                            id: userId,
+                            firstname: newUser.firstname,
+                            lastname: newUser.lastname,
+                            email: newUser.email,
+                            walletCreated: true // Informasi bahwa wallet berhasil dibuat
+                        });
+                    }
+                );
         });
     }
 
@@ -46,6 +68,21 @@ class User {
             cb({ kind: "not_found" }, null);
         })
     }
+
+    static findById(id, cb) {
+        db.query(userProfileByIdQuery, [id], (err, res) => {
+            if (err) {
+                logger.error(err.message);
+                cb(err, null);
+                return;
+            }
+            if (res.length) {
+                cb(null, res[0]); // Ambil baris pertama dari hasil
+                return;
+            }
+            cb({ kind: "not_found" }, null);
+        });
+    }    
 }
 
 module.exports = User;
