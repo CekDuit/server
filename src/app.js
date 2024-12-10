@@ -3,6 +3,8 @@ const morgan = require('morgan');
 const cors = require('cors');
 
 const authRoute = require('./routes/auth.route');
+const userRoute = require('./routes/user.route');
+const walletRoute = require('./routes/wallet.route');
 
 const { httpLogStream } = require('./utils/logger');
 
@@ -15,6 +17,8 @@ app.use(morgan('combined', { stream: httpLogStream }));
 app.use(cors());
 
 app.use('/api/auth', authRoute);
+app.use('/api/user', userRoute);
+app.use('/api/wallet', walletRoute);
 
 app.get('/', (req, res) => {
     res.status(200).send({
