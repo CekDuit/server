@@ -2,7 +2,8 @@ const db = require('../config/db.config');
 const { 
     addUserBalance: addUserBalanceQuery, 
     addTransactionHistory: addTransactionHistoryQuery,
-    subtractUserBalance: subtractUserBalanceQuery } = require('../database/queries');
+    subtractUserBalance: subtractUserBalanceQuery,
+    getTransactionHistory: getTransactionHistoryQuery } = require('../database/queries');
 const { logger } = require('../utils/logger');
 
 const exchangeRates = {
@@ -210,6 +211,33 @@ exports.deductbalance = (req, res) => {
                     });
                 }
             );
+        });
+    });
+};
+
+exports.getTransactionHistory = (req, res) => {
+    const user_id = req.userId; // Ambil user_id dari token yang sudah divalidasi
+
+    db.query(getTransactionHistoryQuery, [user_id], (err, results) => {
+        if (err) {
+            logger.error(`Error retrieving transaction history: ${err.message}`);
+            return res.status(500).send({
+                status: "error",
+                message: "An error occurred while retrieving the transaction history."
+            });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).send({
+                status: "error",
+                message: "No transaction history found for this user."
+            });
+        }
+
+        res.status(200).send({
+            status: "success",
+            message: "Transaction history retrieved successfully.",
+            data: results
         });
     });
 };

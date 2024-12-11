@@ -53,6 +53,12 @@ const addTransactionHistory = `
     VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)
 `;
 
+const getTransactionHistory = `
+    SELECT * FROM transaction_history
+    WHERE user_id = ?
+    ORDER BY datetime DESC
+`;
+
 module.exports = {
     createDB,
     createTableUSers,
@@ -63,5 +69,6 @@ module.exports = {
     createUserWallet,
     addUserBalance,
     addTransactionHistory,
-    subtractUserBalance
+    subtractUserBalance,
+    getTransactionHistory
 };

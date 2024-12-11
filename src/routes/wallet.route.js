@@ -9,4 +9,7 @@ router.route('/addbalance')
 router.route('/deductbalance')
     .post(verifyToken, asyncHandler(walletController.deductbalance));
 
+router.route('/history')
+    .get(verifyToken, asyncHandler(walletController.getTransactionHistory));
+
 module.exports = router;
