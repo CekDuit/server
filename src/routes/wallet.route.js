@@ -6,4 +6,7 @@ const verifyToken = require('../middlewares/authMiddleware');
 router.route('/addbalance')
     .post(verifyToken, asyncHandler(walletController.addbalance));
 
+router.route('/deductbalance')
+    .post(verifyToken, asyncHandler(walletController.deductbalance));
+
 module.exports = router;

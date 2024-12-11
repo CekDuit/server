@@ -43,6 +43,16 @@ const addUserBalance = `
 UPDATE wallets SET balance = balance + ? WHERE user_id = ?
 `;
 
+const subtractUserBalance = `
+    UPDATE wallets SET balance = balance - ? WHERE user_id = ? AND balance >= ?
+`;
+
+const addTransactionHistory = `
+    INSERT INTO transaction_history 
+    (id, user_id, datetime, merchant_name, transaction_id, amount, currency, payment_method, transaction_type, notes) 
+    VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)
+`;
+
 module.exports = {
     createDB,
     createTableUSers,
@@ -51,5 +61,7 @@ module.exports = {
     userProfileById,
     createTableWallet,
     createUserWallet,
-    addUserBalance
+    addUserBalance,
+    addTransactionHistory,
+    subtractUserBalance
 };
