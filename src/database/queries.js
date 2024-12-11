@@ -36,7 +36,7 @@ SELECT * FROM users WHERE email = ?
 `;
 
 const userProfileById = `
-SELECT id, firstname, lastname, email, created_on FROM users WHERE id = ?
+SELECT id, firstname, lastname, email, created_on, profile_pic FROM users WHERE id = ?
 `;
 
 const addUserBalance = `
