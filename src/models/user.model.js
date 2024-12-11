@@ -83,6 +83,31 @@ class User {
             cb({ kind: "not_found" }, null);
         });
     }    
+
+    static updateProfilePic(userId, profilePic, cb) {
+        const updateProfilePicQuery = `
+            UPDATE users SET profile_pic = ? WHERE id = ?
+        `;
+    
+        db.query(updateProfilePicQuery, [profilePic, userId], (err, res) => {
+            if (err) {
+                logger.error(`Error updating profile picture for user ID ${userId}: ${err.message}`);
+                cb(err, null);
+                return;
+            }
+    
+            if (res.affectedRows === 0) {
+                cb({ kind: "not_found" }, null);
+                return;
+            }
+    
+            cb(null, {
+                userId,
+                profilePic,
+                message: "Profile picture updated successfully."
+            });
+        });
+    }
 }
 
 module.exports = User;

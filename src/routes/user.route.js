@@ -1,6 +1,8 @@
 const router = require('express').Router();
-const User = require('../models/user.model'); // Menggunakan model User
-const verifyToken = require('../middlewares/authMiddleware'); // Middleware validasi token
+const User = require('../models/user.model');
+const { uploadProfilePicture } = require('../controllers/user.controller');
+const verifyToken = require('../middlewares/authMiddleware');
+const upload = require('../middlewares/uploadMiddleware');
 
 // Route untuk mendapatkan informasi pengguna
 router.route('/profile')
@@ -17,5 +19,9 @@ router.route('/profile')
         res.status(200).send({ message: "User profile retrieved successfully", user });
     });
 });
+
+router.route('/profilepicture')
+    .post(verifyToken, upload.single('profilePic'), uploadProfilePicture);
+
 
 module.exports = router;
