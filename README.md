@@ -1,9 +1,9 @@
-# CekDuit - Machine Learning
-Welcome to the CekDuit Machine Learning repository. This project is a part of Bangkit Academy 2024 Batch 2, a career-readiness program supported by Google, GoTo, Tokopedia, and Traveloka.
+# CekDuit - Cloud Computing
+Welcome to the CekDuit Cloud Computing repository. This project is a part of Bangkit Academy 2024 Batch 2, a career-readiness program supported by Google, GoTo, Tokopedia, and Traveloka.
 
 ## Members
 | Name | Student ID | Role |
-|---|---|---|---|
+|---|---|---|
 | Darius Mulyadi Putra | M320B4KY1002 | ML |
 | Fransiscus Xaverius Surya Darmawan | M320B4KY1551 | ML |
 | Nathan Adhitya | M244B4KY3263 | ML |
