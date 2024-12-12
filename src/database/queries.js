@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     lastname VARCHAR(50) NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    created_on TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+    created_on TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    profile_pic VARCHAR(255) NOT NULL
 )
 `;
 
@@ -24,7 +25,7 @@ CREATE TABLE wallets (
 `;
 
 const createNewUser = `
-INSERT INTO users VALUES(null, ?, ?, ?, ?, NOW())
+INSERT INTO users VALUES(null, ?, ?, ?, ?, NOW(), null)
 `;
 
 const createUserWallet = `
@@ -36,32 +37,32 @@ SELECT * FROM users WHERE email = ?
 `;
 
 const userProfileById = `
-SELECT id, firstname, lastname, email, created_on, profile_pic FROM users WHERE id = ?
+SELECT id, firstname, lastname, email, created_on, profile_pic FROM users WHERE email = ?
 `;
 
 const addUserBalance = `
-UPDATE wallets SET balance = balance + ? WHERE user_id = ?
+UPDATE wallets SET balance = balance + ? WHERE user_id = (SELECT id FROM users WHERE email = ?)
 `;
 
 const subtractUserBalance = `
-    UPDATE wallets SET balance = balance - ? WHERE user_id = ? AND balance >= ?
+    UPDATE wallets SET balance = balance - ? WHERE user_id = (SELECT id FROM users WHERE email = ?) AND balance >= ?
 `;
 
 const addTransactionHistory = `
     INSERT INTO transaction_history 
-    (id, user_id, datetime, merchant_name, transaction_id, amount, currency, payment_method, transaction_type, notes) 
-    VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)
+    (id, user_id, datetime, merchant_name, category, transaction_id, amount, currency, payment_method, transaction_type, notes) 
+    VALUES (?, (SELECT id FROM users WHERE email = ?), NOW(), ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
 const getTransactionHistory = `
     SELECT * FROM transaction_history
-    WHERE user_id = ?
+    WHERE user_id = (SELECT id FROM users WHERE email = ?)
     ORDER BY datetime DESC
 `;
 
 const getTransactionHistoryByTime = `
     SELECT * FROM transaction_history 
-    WHERE user_id = ?
+    WHERE user_id = (SELECT id FROM users WHERE email = ?)
     AND (
         CASE ?
             WHEN 'INCOME' THEN transaction_type = 'INCOME'
@@ -90,7 +91,11 @@ const getTransactionHistoryByTime = `
             WHEN 'FAMILY' THEN category = 'FAMILY'
             WHEN 'SUBSCRIPTION' THEN category = 'SUBSCRIPTION'
             WHEN 'APPAREL' THEN category = 'APPAREL'
-            WHEN 'EDUCATION' THEN category = 'EDUCATION'
+            SELECT * FROM transaction_history 
+    WHERE user_id = (SELECT id FROM users WHERE email = ?)
+    AND (
+        CASE ?
+      WHEN 'EDUCATION' THEN category = 'EDUCATION'
             WHEN 'ENTERTAINMENT' THEN category = 'ENTERTAINMENT'
             WHEN 'UTILITIES' THEN category = 'UTILITIES'
             WHEN 'BEAUTY' THEN category = 'BEAUTY'
