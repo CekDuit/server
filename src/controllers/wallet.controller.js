@@ -3,7 +3,7 @@ const {
     addUserBalance: addUserBalanceQuery, 
     addTransactionHistory: addTransactionHistoryQuery,
     subtractUserBalance: subtractUserBalanceQuery,
-    getTransactionHistory: getTransactionHistoryQuery } = require('../database/queries');
+    getTransactionHistory: getTransactionHistoryQuery, getTransactionHistoryByType: getTransactionHistoryByTypeQuery } = require('../database/queries');
 const { logger } = require('../utils/logger');
 
 const exchangeRates = {
@@ -237,6 +237,41 @@ exports.getTransactionHistory = (req, res) => {
         res.status(200).send({
             status: "success",
             message: "Transaction history retrieved successfully.",
+            data: results
+        });
+    });
+};
+
+exports.getTransactionHistoryByType = (req, res) => {
+    const user_id = req.userId;
+    const { transactionType } = req.query;
+
+    if (!transactionType || (transactionType !== "INCOME" && transactionType !== "EXPENSE")) {
+        return res.status(400).send({
+            status: "error",
+            message: "Invalid or missing transaction type. Allowed values: 'INCOME', 'EXPENSE'."
+        });
+    }
+
+    db.query(getTransactionHistoryByTypeQuery, [user_id, transactionType], (err, results) => {
+        if (err) {
+            logger.error(`Error retrieving transaction history: ${err.message}`);
+            return res.status(500).send({
+                status: "error",
+                message: "An error occurred while retrieving the transaction history."
+            });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).send({
+                status: "error",
+                message: `No transaction history found for type '${transactionType}' in the last month.`
+            });
+        }
+
+        res.status(200).send({
+            status: "success",
+            message: `Transaction history for type '${transactionType}' retrieved successfully.`,
             data: results
         });
     });

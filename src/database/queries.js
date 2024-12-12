@@ -59,6 +59,15 @@ const getTransactionHistory = `
     ORDER BY datetime DESC
 `;
 
+const getTransactionHistoryByType = ` 
+    SELECT * FROM transaction_history
+    WHERE user_id = ? 
+    AND transaction_type = ? 
+    AND MONTH(datetime) = MONTH(CURRENT_DATE()) 
+    AND YEAR(datetime) = YEAR(CURRENT_DATE())
+    ORDER BY datetime DESC
+`;
+
 module.exports = {
     createDB,
     createTableUSers,
@@ -70,5 +79,6 @@ module.exports = {
     addUserBalance,
     addTransactionHistory,
     subtractUserBalance,
-    getTransactionHistory
+    getTransactionHistory,
+    getTransactionHistoryByType
 };
