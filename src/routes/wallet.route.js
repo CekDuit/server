@@ -12,7 +12,7 @@ router.route('/deductbalance')
 router.route('/history')
     .get(verifyToken, asyncHandler(walletController.getTransactionHistory));
 
-router.route('/monthly-history')
-    .get(verifyToken, asyncHandler(walletController.getTransactionHistoryByType));
+router.route('/history-filter')
+    .get(verifyToken, asyncHandler(walletController.getTransactionHistoryByTime));
 
 module.exports = router;

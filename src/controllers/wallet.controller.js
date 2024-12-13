@@ -3,7 +3,7 @@ const {
     addUserBalance: addUserBalanceQuery, 
     addTransactionHistory: addTransactionHistoryQuery,
     subtractUserBalance: subtractUserBalanceQuery,
-    getTransactionHistory: getTransactionHistoryQuery, getTransactionHistoryByType: getTransactionHistoryByTypeQuery } = require('../database/queries');
+    getTransactionHistory: getTransactionHistoryQuery, getTransactionHistoryByTime: getTransactionHistoryByTimeQuery } = require('../database/queries');
 const { logger } = require('../utils/logger');
 
 const exchangeRates = {
@@ -242,37 +242,60 @@ exports.getTransactionHistory = (req, res) => {
     });
 };
 
-exports.getTransactionHistoryByType = (req, res) => {
-    const user_id = req.userId;
-    const { transactionType } = req.query;
+exports.getTransactionHistoryByTime = (req, res) => {
+    const user_id = req.userId; // Ambil user_id dari token yang sudah divalidasi
+    const { transactionType, timeFrame, category } = req.query; // Ambil tipe transaksi dan rentang waktu dari query string
 
-    if (!transactionType || (transactionType !== "INCOME" && transactionType !== "EXPENSE")) {
+    // Validasi tipe transaksi
+    if (!transactionType || (transactionType !== "INCOME" && transactionType !== "EXPENSE" && transactionType !== "ALL")) {
         return res.status(400).send({
             status: "error",
-            message: "Invalid or missing transaction type. Allowed values: 'INCOME', 'EXPENSE'."
+            message: "Invalid or missing transaction type. Allowed values: 'INCOME', 'EXPENSE', 'ALL'."
         });
     }
 
-    db.query(getTransactionHistoryByTypeQuery, [user_id, transactionType], (err, results) => {
-        if (err) {
-            logger.error(`Error retrieving transaction history: ${err.message}`);
-            return res.status(500).send({
-                status: "error",
-                message: "An error occurred while retrieving the transaction history."
-            });
-        }
-
-        if (results.length === 0) {
-            return res.status(404).send({
-                status: "error",
-                message: `No transaction history found for type '${transactionType}' in the last month.`
-            });
-        }
-
-        res.status(200).send({
-            status: "success",
-            message: `Transaction history for type '${transactionType}' retrieved successfully.`,
-            data: results
+    // Validasi rentang waktu
+    const validTimeFrames = ["MONTHLY", "LAST_30_DAYS", "LAST_7_DAYS", "LAST_3_DAYS", "TODAY", "ALL_TIME"];
+    if (!timeFrame || !validTimeFrames.includes(timeFrame)) {
+        return res.status(400).send({
+            status: "error",
+            message: `Invalid or missing time frame. Allowed values: ${validTimeFrames.join(", ")}.`
         });
-    });
+    }
+
+    const validCategory = ["FOOD", "HEALTH", "DRINKS", "HOUSEHOLD", "TRANSPORTATION", "GROCERIES", "FAMILY", "SUBSCRIPTION", "APPAREL", "EDUCATION", "ENTERTAINMENT", "UTILITIES", "BEAUTY", "OTHER", "ALL"];
+    if (!category || !validCategory.includes(category)) {
+        return res.status(400).send({
+            status: "error",
+            message: `Invalid or missing category. Allowed values: ${validCategory.join(", ")}.`
+        });
+    }
+
+    db.query(
+        getTransactionHistoryByTimeQuery,
+        [user_id, transactionType, timeFrame, category],
+        (err, results) => {
+            if (err) {
+                logger.error(`Error retrieving transaction history: ${err.message}`);
+                return res.status(500).send({
+                    status: "error",
+                    message: "An error occurred while retrieving the transaction history."
+                });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).send({
+                    status: "error",
+                    message: `No transaction history found for type '${transactionType}' and '${category}' category within the '${timeFrame}' time frame.`
+                });
+            }
+
+            res.status(200).send({
+                status: "success",
+                message: `Transaction history for type '${transactionType}' and '${category}' category within the '${timeFrame}' time frame retrieved successfully.`,
+                data: results
+            });
+        }
+    );
 };
+

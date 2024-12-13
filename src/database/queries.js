@@ -59,14 +59,48 @@ const getTransactionHistory = `
     ORDER BY datetime DESC
 `;
 
-const getTransactionHistoryByType = ` 
-    SELECT * FROM transaction_history
-    WHERE user_id = ? 
-    AND transaction_type = ? 
-    AND MONTH(datetime) = MONTH(CURRENT_DATE()) 
-    AND YEAR(datetime) = YEAR(CURRENT_DATE())
+const getTransactionHistoryByTime = `
+    SELECT * FROM transaction_history 
+    WHERE user_id = ?
+    AND (
+        CASE ?
+            WHEN 'INCOME' THEN transaction_type = 'INCOME'
+            WHEN 'EXPENSE' THEN transaction_type = 'EXPENSE'
+            WHEN 'ALL' THEN transaction_type IN ('INCOME', 'EXPENSE')
+        END
+    )
+    AND (
+        CASE ?
+            WHEN 'MONTHLY' THEN MONTH(datetime) = MONTH(CURRENT_DATE()) AND YEAR(datetime) = YEAR(CURRENT_DATE())
+            WHEN 'LAST_30_DAYS' THEN datetime >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            WHEN 'LAST_7_DAYS' THEN datetime >= DATE_SUB(NOW(), INTERVAL 7 DAY) 
+            WHEN 'LAST_3_DAYS' THEN datetime >= DATE_SUB(NOW(), INTERVAL 3 DAY)
+            WHEN 'TODAY' THEN DATE(datetime) = DATE(CURRENT_DATE())
+            WHEN 'ALL_TIME' THEN 1=1
+        END
+    )
+    AND (
+        CASE ?
+            WHEN 'FOOD' THEN category = 'FOOD'
+            WHEN 'HEALTH' THEN category = 'HEALTH'
+            WHEN 'DRINKS' THEN category = 'DRINKS'
+            WHEN 'HOUSEHOLD' THEN category = 'HOUSEHOLD'
+            WHEN 'TRANSPORTATION' THEN category = 'TRANSPORTATION'
+            WHEN 'GROCERIES' THEN category = 'GROCERIES'
+            WHEN 'FAMILY' THEN category = 'FAMILY'
+            WHEN 'SUBSCRIPTION' THEN category = 'SUBSCRIPTION'
+            WHEN 'APPAREL' THEN category = 'APPAREL'
+            WHEN 'EDUCATION' THEN category = 'EDUCATION'
+            WHEN 'ENTERTAINMENT' THEN category = 'ENTERTAINMENT'
+            WHEN 'UTILITIES' THEN category = 'UTILITIES'
+            WHEN 'BEAUTY' THEN category = 'BEAUTY'
+            WHEN 'OTHER' THEN category = 'OTHER'
+            WHEN 'ALL' THEN category IN ('FOOD', 'HEALTH', 'DRINKS', 'HOUSEHOLD', 'TRANSPORTATION', 'GROCERIES', 'FAMILY', 'SUBSCRIPTION', 'APPAREL', 'EDUCATION', 'ENTERTAINMENT', 'UTILITIES', 'BEAUTY', 'OTHER')
+        END
+    )
     ORDER BY datetime DESC
 `;
+
 
 module.exports = {
     createDB,
@@ -80,5 +114,5 @@ module.exports = {
     addTransactionHistory,
     subtractUserBalance,
     getTransactionHistory,
-    getTransactionHistoryByType
+    getTransactionHistoryByTime
 };
